@@ -3,7 +3,7 @@
 # Docker Build
 docker build -t my_vnc_image .
 
-# X86_64 Arch (Dev)
+# X86_64
 docker run -it -p 5020:5020 -p 5900:5900 my_vnc_image /bin/bash
 
 # ARM
