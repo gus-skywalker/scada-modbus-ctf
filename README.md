@@ -1,4 +1,4 @@
-# HOW TO Execute Application
+# HOW TO
 
 # Docker Build
 docker build -t my_vnc_image .
