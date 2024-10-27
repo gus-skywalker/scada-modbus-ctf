@@ -1,20 +1,11 @@
 #!/bin/bash
 
-# Start Xvfb
-Xvfb :99 -screen 0 1024x768x24 &
-export DISPLAY=:99
+# Remove any existing X lock file
+rm -f /tmp/.X99-lock
 
-# Start fluxbox
-fluxbox &
-
-# Start x11vnc
-x11vnc -forever -usepw -display :99 &
-
-# Executar o script Python
+# Navegar para o diretório correto e iniciar o script da aplicação
 cd /app/plants/oil-refinery
 ./start.sh
 
-# Manter o container ativo
+# Manter o contêiner ativo apenas se não houver logs
 tail -f /dev/null
-
-# docker run -it --rm --shm-size=256m -p 5020:5020 -p 5900:5900 my_vnc_image

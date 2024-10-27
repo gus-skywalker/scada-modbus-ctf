@@ -1,7 +1,7 @@
-# Usando a imagem base com Python 2.7 e arquitetura x86_64
+# Use a base image with Python 2.7
 FROM --platform=linux/amd64 python:2.7
 
-# Instalação das dependências do sistema
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y \
     gcc \
@@ -37,51 +37,43 @@ RUN apt-get update && \
     fluxbox \
     xvfb \
     xterm \
-    supervisor \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Remover ALSA se som não for necessário
+# Remove ALSA if sound is not required
 RUN apt-get remove -y alsa-utils libasound2
 
-# Atualizar pip e instalar setuptools
+# Update pip and install setuptools
 RUN pip install --upgrade pip setuptools
 
 # Install PyGObject and necessary libraries
 RUN apt-get update && \
     apt-get install -y python-gi gir1.2-gtk-3.0
 
-# Definir diretório de trabalho e copiar o código
+# Set the working directory
 WORKDIR /app
+
+# Copy application code and script
 COPY virtuaplant .
+
+# Make the script executable
 RUN chmod +x start-script.sh
 
-# Configuração do Fluxbox para ocultar a barra de ferramentas
-# RUN mkdir -p /root/.fluxbox && echo "session.screen0.toolbar.visible: false" > /root/.fluxbox/init
-
-# Instalação das bibliotecas Python e outras dependências
+# Install Python dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Install additional Python dependencies
 RUN pip install --no-cache-dir Twisted==15.0.0 pymunk==4.0.0 pymodbus==1.2.0 pyasn1==0.1.7 pycrypto==2.6.1
+
+# Install PyGObject and pygame
 RUN pip install --no-cache-dir PyGObject pygame
 
-# Variáveis de ambiente para o servidor Modbus
-ENV MODBUS_HOST=localhost
-ENV MODBUS_PORT=5020
-
-# Configuração do X11VNC
+# Configure Xvfb and VNC server
 RUN mkdir ~/.vnc
 RUN x11vnc -storepasswd 123456 ~/.vnc/passwd
-# ENV DISPLAY=:1
-# ENV X11VNC_OPTS="-forever -loop -noipv6 -shared -rfbport 5901 -noxdamage -quiet -nopw"
 
-# Configuração do supervisor para iniciar X11VNC, Fluxbox e servidor Python
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Expondo as portas necessárias
+# Expose necessary ports
 EXPOSE 5020 5900
 
-# Comando de inicialização com o supervisor
-# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
-
+# Start the VNC server and the application using the script
+ENTRYPOINT ["/app/start-script.sh"]
