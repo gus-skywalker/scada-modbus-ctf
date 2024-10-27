@@ -65,12 +65,15 @@ RUN pip install --no-cache-dir Twisted==15.0.0 pymunk==4.0.0 pymodbus==1.2.0 pya
 # Install PyGObject and pygame
 RUN pip install --no-cache-dir PyGObject pygame
 
+# Install noVNC (websockify will be installed automatically)
+RUN git clone https://github.com/novnc/noVNC.git /app/noVNC
+
 # Configure Xvfb and VNC server
 RUN mkdir ~/.vnc
 RUN x11vnc -storepasswd 123456 ~/.vnc/passwd
 
 # Expose necessary ports
-EXPOSE 5020 5900
+EXPOSE 5020 5900 6080
 
-# Start the VNC server and the application using the script
-ENTRYPOINT ["/app/start-script.sh"]
+# Start the VNC server, noVNC, and the application using the script
+ENTRYPOINT ["sh", "-c", "xvfb-run -s '-screen 0 1024x768x16' fluxbox & x11vnc -forever -nopw -create & /app/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 6080 & /app/start-script.sh"]
