@@ -4,10 +4,10 @@
 docker build -t my_novnc_image .
 
 # X86_64
-docker run -d -p 5020:5020 -p 5900:5900 -p 6080:6080 --name my_novnc_container my_novnc_image
+docker run -d -p 5020:5020 -p 5901:5901 -p 6080:6080 --name my_novnc_container my_novnc_image
 
 # ARM
-docker run -d --platform linux/amd64 -p 5020:5020 -p 5900:5900 -p 6080:6080 --name my_novnc_container my_novnc_image
+docker run -d --platform linux/amd64 -p 5020:5020 -p 5901:5901 -p 6080:6080 --name my_novnc_container my_novnc_image
 
 # Virtual Networking Computing (VNC) Connection
 localhost:5900

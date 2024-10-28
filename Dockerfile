@@ -37,8 +37,12 @@ RUN apt-get update && \
     fluxbox \
     xvfb \
     xterm \
+    supervisor \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Remover ALSA se som não for necessário
+RUN apt-get remove -y alsa-utils libasound2
 
 # Update pip and install setuptools
 RUN pip install --upgrade pip setuptools
@@ -65,15 +69,24 @@ RUN pip install --no-cache-dir Twisted==15.0.0 pymunk==4.0.0 pymodbus==1.2.0 pya
 # Install PyGObject and pygame
 RUN pip install --no-cache-dir PyGObject pygame
 
+# Variáveis de ambiente para o servidor Modbus
+ENV MODBUS_HOST=localhost
+ENV MODBUS_PORT=5020
+ENV DISPLAY=:99
+
+# Instalação global do NumPy para o websockify
+# RUN pip install numpy==1.16.6
+
 # Install noVNC (websockify will be installed automatically)
 RUN git clone https://github.com/novnc/noVNC.git /app/noVNC
 
 # Configure Xvfb and VNC server
 RUN mkdir ~/.vnc
-RUN x11vnc -storepasswd 123456 ~/.vnc/passwd
 
 # Expose necessary ports
-EXPOSE 5020 5900 6080
+EXPOSE 5020 5901
 
 # Start the VNC server, noVNC, and the application using the script
-ENTRYPOINT ["sh", "-c", "xvfb-run -s '-screen 0 1024x768x16' fluxbox & x11vnc -forever -nopw -create & /app/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 6080 & /app/start-script.sh"]
+# ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# ENTRYPOINT ["sh", "-c", "Xvfb :1 -screen 0 1024x768x24 & export DISPLAY=:1 && fluxbox & sleep 5 && x11vnc -forever -nopw -display :1 -rfbport 5901 & /app/noVNC/utils/novnc_proxy --vnc localhost:5901 --listen 6080 & sleep 5 && cd /app/plants/oil-refinery && ./start.sh && tail -f /dev/null"]
+ENTRYPOINT ["/app/start-script.sh"]
