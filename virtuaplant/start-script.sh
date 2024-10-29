@@ -21,9 +21,20 @@ while true; do
     sleep 5
 done &
 
-# Executar o script Python
+# Executar o script Python principal
 cd /app/plants/oil-refinery
-./oil_world.py -t localhost
+./oil_world.py -t localhost &
+
+# Esperar até que `oil_world.py` esteja ativo na porta 5020
+echo "Aguardando o script oil_world.py iniciar completamente..."
+while ! timeout 1 bash -c "</dev/tcp/localhost/5020"; do
+    sleep 1
+done
+echo "oil_world.py iniciado. Executando outros scripts."
+
+# Iniciar outros scripts Python
+./flag_manager.py &
+./plant_manager.py &
 
 # Manter o container ativo
 tail -f /dev/null
