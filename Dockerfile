@@ -33,11 +33,11 @@ RUN apt-get update && \
     git \
     unzip \
     curl \
-    x11vnc \
     fluxbox \
     xvfb \
     xterm \
     supervisor \
+    tightvncserver \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -57,8 +57,14 @@ WORKDIR /app
 # Copy application code and script
 COPY virtuaplant .
 
+# Copiar o arquivo xstartup para a pasta .vnc do usuário root
+COPY virtuaplant/xstartup /root/.vnc/xstartup
+RUN chmod +x /root/.vnc/xstartup
+
+COPY virtuaplant/start_vnc.sh /app/start_vnc.sh
+RUN chmod +x /app/start_vnc.sh
 # Make the script executable
-RUN chmod +x start-script.sh
+RUN chmod +x /app/start-script.sh
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
@@ -72,21 +78,18 @@ RUN pip install --no-cache-dir PyGObject pygame
 # Variáveis de ambiente para o servidor Modbus
 ENV MODBUS_HOST=localhost
 ENV MODBUS_PORT=5020
-ENV DISPLAY=:99
+ENV DISPLAY=:1
+ENV USER=root
 
-# Instalação global do NumPy para o websockify
-# RUN pip install numpy==1.16.6
+# Configuração do supervisor para iniciar X11VNC, Fluxbox e servidor Python
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Install noVNC (websockify will be installed automatically)
 RUN git clone https://github.com/novnc/noVNC.git /app/noVNC
 
-# Configure Xvfb and VNC server
-RUN mkdir ~/.vnc
-
 # Expose necessary ports
-EXPOSE 5020 5901
+EXPOSE 5020 80
 
 # Start the VNC server, noVNC, and the application using the script
 # ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-# ENTRYPOINT ["sh", "-c", "Xvfb :1 -screen 0 1024x768x24 & export DISPLAY=:1 && fluxbox & sleep 5 && x11vnc -forever -nopw -display :1 -rfbport 5901 & /app/noVNC/utils/novnc_proxy --vnc localhost:5901 --listen 6080 & sleep 5 && cd /app/plants/oil-refinery && ./start.sh && tail -f /dev/null"]
 ENTRYPOINT ["/app/start-script.sh"]

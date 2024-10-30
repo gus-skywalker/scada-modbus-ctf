@@ -409,7 +409,7 @@ def run_world():
                 running = False
 
         # Load the background picture for the pipe images
-        bg = pygame.image.load("oil_unit.png")
+        bg = pygame.image.load("/app/plants/oil-refinery/oil_unit.png")
         # Background color
         screen.fill(THECOLORS["grey"])
 

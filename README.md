@@ -27,4 +27,32 @@ while true; do
  ~/virtuaplant_venv/bin/python ./oil_world.py -t 0.0.0.0
 done
 
- 
+ # vnc.service
+[Unit]
+Description=VNC Service
+After=network.target
+
+[Service]
+Type=forking
+User=plant
+ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1
+ExecStart=/usr/bin/vncserver -depth 16 -geometry 640x480 :1
+ExecStop=/usr/bin/vncserver -kill :1
+
+[Install]
+WantedBy=multi-user.target
+
+# vncproxy.service
+[Unit]
+Description=VNC proxy service
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=plant
+ExecStart=/home/plant/noVNC/utils/launch.sh --vnc localhost:5901
+
+[Install]
+WantedBy=multi-user.target

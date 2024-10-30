@@ -1,0 +1,9 @@
+#!/bin/sh
+xrdb $HOME/.Xresources
+xsetroot -solid black
+xrandr -s 640x480
+cd ~/app/plants/oil-refinery
+while true; do
+    ./oil_world.py -t 0.0.0.0
+done
+
