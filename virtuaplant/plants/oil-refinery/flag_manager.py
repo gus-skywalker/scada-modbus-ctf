@@ -12,8 +12,8 @@ log.setLevel(logging.INFO)
 #####################################
 # Code
 #####################################
-flag1 = "Flag1:bdkf84hj4cfbd5ce3ae91ef7021flv04\n-> Sending critical alert..."
-flag2 = "Flag2:0d348fuac66272769fghj3409smfh995\n-> Sending critical alert...\n\nThe Oil Plant has been compromised!!"
+flag1 = "Flag1:56901cf4584b7841ec3cdbe1dba23caa47a79eb1\n-> Sending critical alert..."
+flag2 = "Flag2:9c7406a76dd8958ea0026e4756dca4346d1452b8\n-> Sending critical alert...\n\nThe Oil Plant has been compromised!!"
 client = ModbusClient('localhost', port=5020)
 
 while True:
@@ -45,13 +45,13 @@ try:
                 time.sleep(1)
             if counter == 30:
 	        log.info("got flag1")
-                with open('/home/plant/noVNC/flag1.txt', 'w') as f:
+                with open('/app/noVNC/flag1.txt', 'w') as f:
                     f.write(flag1)
                     f.close()
 	elif rr.registers[6] > 1000 and rr.registers[5] < 2:
             # Flag2: crude oil flows trough the separator vessel valve
             log.info("got flag2")
-            with open('/home/plant/noVNC/flag2.txt', 'w') as f:
+            with open('/app/noVNC/flag2.txt', 'w') as f:
                 f.write(flag2)
                 f.close()
         time.sleep(5)

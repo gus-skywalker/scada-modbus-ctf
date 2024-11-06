@@ -27,7 +27,7 @@ start_oil_world() {
 
     while true; do
         echo "Iniciando o processo oil_world.py"
-        ./oil_world.py -t localhost &
+        ./oil_world.py -t 0.0.0.0 &
 
         # Pegar o PID do processo `oil_world.py`
         OIL_WORLD_PID=$!
